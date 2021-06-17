@@ -1,0 +1,20 @@
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: nginx-v1
+spec:
+  http-snippets: |
+    limit_conn_zone $remote_addr zone=addr:10m;
+  host: gke1-vs.takaaki-nginx.xyz
+  tls:
+    secret: cafe-secret
+  upstreams:
+  - name: nginx-v1
+    service: nginx-v1-svc
+    port: 80
+  routes:
+  - path: /
+    location-snippets: |
+      limit_conn addr 1;
+    action:
+      pass: nginx-v1
